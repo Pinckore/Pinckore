@@ -2,11 +2,19 @@ name: Update check date
 
 on:
   schedule:
-    - cron: "7 * * * *"   # every hour; only saves when the day has changed
-  workflow_dispatch:       # adds a "Run workflow" button for testing
+    - cron: "7 * * * *"          # every hour; only saves when the day has changed
+  workflow_dispatch:              # "Run workflow" button in the Actions tab
+  push:                           # also runs right away when this file or the check is updated
+    paths:
+      - ".github/workflows/update-date.yml"
+      - "asset/lab-report.svg"
 
 permissions:
-  contents: write          # allowed to update files in this repository only
+  contents: write                 # may update files in this repository only
+
+concurrency:
+  group: update-date
+  cancel-in-progress: false
 
 jobs:
   update-date:
@@ -16,17 +24,32 @@ jobs:
 
       - name: Write today's date into the check
         run: |
+          FILE="asset/lab-report.svg"
+          if [ ! -f "$FILE" ]; then
+            echo "::error::Can't find $FILE. The check must be in a folder called 'asset' (no s)."
+            exit 1
+          fi
           TODAY=$(TZ=Etc/GMT-3 date +'%b %-d')
-          sed -i -E "s|(<text id=\"date\"[^>]*>)[^<]*(</text>)|\1${TODAY}\2|" asset/lab-report.svg
+          echo "Today's date (UTC+3): $TODAY"
+          # Older checks without a date marker: upgrade the date box so it can be updated
+          sed -i -E "s|<text x=\"770\" y=\"132\">[^<]*</text>|<text id=\"date\" x=\"835\" y=\"132\" text-anchor=\"middle\">${TODAY}</text>|" "$FILE"
+          # Write today's date
+          sed -i -E "s|(<text id=\"date\"[^>]*>)[^<]*(</text>)|\1${TODAY}\2|" "$FILE"
+          if ! grep -q 'id="date"' "$FILE"; then
+            echo "::error::No date box found in $FILE. Upload the latest lab-report.svg."
+            exit 1
+          fi
+          grep -o '<text id="date"[^>]*>[^<]*</text>' "$FILE"
 
       - name: Save only if the date changed
         run: |
           if git diff --quiet; then
-            echo "Date unchanged, nothing to save."
+            echo "Date already up to date, nothing to save."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Update check date"
+          git pull --rebase
           git push
-</svg>
+          echo "Saved the new date."
