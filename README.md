@@ -4,7 +4,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/fictkin-Bob%20Velseb-a8192c?style=for-the-badge&labelColor=12070b" alt="fictkin">
-  <img src="https://img.shields.io/badge/season-spooky%20month-ff7ab6?style=for-the-badge&labelColor=12070b" alt="season">
   <img src="https://img.shields.io/badge/your%20candy-is%20mine%20now-ffd34d?style=for-the-badge&labelColor=12070b" alt="your candy is mine now">
   <img src="https://visitor-badge.laobi.icu/badge?page_id=Pinc-Pt.Pinc-Pt&left_text=lost%20visitors&left_color=%2314112a&right_color=%23ff9a3c" alt="visitors">
 </p>
