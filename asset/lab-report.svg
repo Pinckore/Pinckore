@@ -1,72 +1,54 @@
-name: Update check date
-
-on:
-  schedule:
-    - cron: "7 * * * *"          # every hour; only saves when the day has changed
-  workflow_dispatch:              # "Run workflow" button in the Actions tab
-  push:                           # also runs right away when this file or the check is updated
-    paths:
-      - ".github/workflows/update-date.yml"
-      - "asset/lab-report.svg"
-
-permissions:
-  contents: write                 # may update files in this repository only
-
-concurrency:
-  group: update-date
-  cancel-in-progress: false
-
-jobs:
-  update-date:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Write today's date into the check
-        run: |
-          FILE="asset/lab-report.svg"
-          if [ ! -f "$FILE" ]; then
-            echo "::error::Can't find $FILE. The check must be in a folder called 'asset' (no s)."
-            exit 1
-          fi
-          # Clean up common copy-paste damage: ``` lines and anything before <svg / after </svg>
-          sed -i '/^[[:space:]]*```/d' "$FILE"
-          python3 - "$FILE" <<'PY'
-          import sys, re
-          p = sys.argv[1]
-          s = open(p, encoding="utf-8-sig").read()
-          a, b = s.find("<svg"), s.rfind("</svg>")
-          if a != -1 and b != -1:
-              s = s[a:b + 6] + "\n"
-          open(p, "w", encoding="utf-8").write(s)
-          PY
-          TODAY=$(TZ=Etc/GMT-3 date +'%b %-d')
-          echo "Today's date (UTC+3): $TODAY"
-          # Older checks without a date marker: upgrade the date box so it can be updated
-          sed -i -E "s|<text x=\"770\" y=\"132\">[^<]*</text>|<text id=\"date\" x=\"835\" y=\"132\" text-anchor=\"middle\">${TODAY}</text>|" "$FILE"
-          # Write today's date
-          sed -i -E "s|(<text id=\"date\"[^>]*>)[^<]*(</text>)|\1${TODAY}\2|" "$FILE"
-          if ! grep -q 'id="date"' "$FILE"; then
-            echo "::error::No date box found in $FILE. Upload the latest lab-report.svg."
-            exit 1
-          fi
-          grep -o '<text id="date"[^>]*>[^<]*</text>' "$FILE"
-          # Make sure the result is a valid picture before saving
-          if ! python3 -c "import sys, xml.dom.minidom; xml.dom.minidom.parse(sys.argv[1])" "$FILE"; then
-            echo "::error::$FILE is damaged and not a valid SVG. Delete it and upload lab-report.svg again (don't paste)."
-            exit 1
-          fi
-          echo "lab-report.svg is a valid picture."
-
-      - name: Save only if the date changed
-        run: |
-          if git diff --quiet; then
-            echo "Date already up to date, nothing to save."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Update check date (and tidy lab-report.svg)"
-          git pull --rebase
-          git push
-          echo "Saved the new date."
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="480" viewBox="0 0 1200 480">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d2f39"/><stop offset="1" stop-color="#154d5c"/></linearGradient>
+<linearGradient id="pp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f8ee"/><stop offset="1" stop-color="#e3ecd8"/></linearGradient>
+<clipPath id="sig"><rect x="720" y="392" width="220" height="40" class="w"/></clipPath>
+</defs>
+<style>
+.pad{transform-origin:600px 240px;transform:rotate(-1.2deg)}
+.r{opacity:0;animation:f .5s ease-out forwards}@keyframes f{to{opacity:1}}
+.ul{stroke-dasharray:180;stroke-dashoffset:180;animation:u .8s ease-out 2.2s forwards}@keyframes u{to{stroke-dashoffset:0}}
+.tot{opacity:0;animation:f .5s ease-out 2s forwards}
+.w{transform:scaleX(0);transform-origin:720px 0;animation:wr 1.4s ease-in-out 2.8s forwards}@keyframes wr{to{transform:scaleX(1)}}
+.st{opacity:0;transform-origin:690px 290px;animation:st .35s ease-out 3.8s forwards}@keyframes st{from{opacity:0;transform:scale(1.8) rotate(-25deg)}to{opacity:.85;transform:scale(1) rotate(-14deg)}}
+.stm path{animation:sm 3s ease-in-out infinite}@keyframes sm{0%{opacity:0;transform:translateY(6px)}40%{opacity:.6}100%{opacity:0;transform:translateY(-14px)}}
+</style>
+<rect width="1200" height="480" fill="url(#bg)"/>
+<g class="pad">
+<rect x="256" y="24" width="700" height="436" rx="4" fill="#000" opacity=".25"/>
+<rect x="250" y="18" width="700" height="436" rx="4" fill="url(#pp)"/>
+<rect x="250" y="18" width="700" height="10" fill="#2f6b4f"/>
+<text x="274" y="66" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-weight="700" font-size="30" fill="#b3262d">Boys 'n Grill</text>
+<text x="276" y="86" font-family="Consolas,Menlo,monospace" font-size="11" letter-spacing="3" fill="#2f6b4f">OPEN LATE · THE GRILL NEVER COOLS</text>
+<text x="926" y="58" text-anchor="end" font-family="Consolas,Menlo,monospace" font-size="20" font-weight="700" letter-spacing="4" fill="#2f6b4f">GUEST CHECK</text>
+<text x="926" y="84" text-anchor="end" font-family="Consolas,Menlo,monospace" font-size="16" font-weight="700" fill="#b3262d">Nº 1031</text>
+<g font-family="Consolas,Menlo,monospace" font-size="10" letter-spacing="2" fill="#2f6b4f">
+<rect x="250" y="98" width="700" height="40" fill="none" stroke="#2f6b4f" stroke-opacity=".6"/>
+<path d="M390 98v40M530 98v40M720 98v40" stroke="#2f6b4f" stroke-opacity=".6"/>
+<text x="260" y="110">TABLE</text><text x="400" y="110">GUESTS</text><text x="540" y="110">SERVER</text><text x="730" y="110">DATE</text>
+</g>
+<g font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="18" fill="#1f3a8a"><text x="310" y="132">13</text><text x="455" y="132">1</text><text x="625" y="132" text-anchor="middle">Bob Velseb</text><text id="date" x="835" y="132" text-anchor="middle">Nov 2</text></g>
+<g font-family="Consolas,Menlo,monospace" font-size="10" letter-spacing="2" fill="#2f6b4f"><text x="270" y="154">QTY</text><text x="312" y="154">ITEM</text><text x="930" y="154" text-anchor="end">PRICE</text></g>
+<path d="M250 160H950" stroke="#2f6b4f" stroke-opacity=".35"/><path d="M250 190H950" stroke="#2f6b4f" stroke-opacity=".35"/><path d="M250 220H950" stroke="#2f6b4f" stroke-opacity=".35"/><path d="M250 250H950" stroke="#2f6b4f" stroke-opacity=".35"/><path d="M250 280H950" stroke="#2f6b4f" stroke-opacity=".35"/><path d="M250 310H950" stroke="#2f6b4f" stroke-opacity=".35"/><path d="M250 340H950" stroke="#2f6b4f" stroke-opacity=".35"/><path d="M250 370H950" stroke="#2f6b4f" stroke-opacity=".35"/>
+<path d="M298 140V390M840 140V390" stroke="#b3262d" stroke-opacity=".35"/>
+<g class="r" style="animation-delay:0.30s"><text x="280" y="182" text-anchor="middle" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">1</text><text x="312" y="182" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">Guest: Pinckore</text><text x="930" y="182" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a"></text></g><g class="r" style="animation-delay:0.52s"><text x="280" y="212" text-anchor="middle" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">1</text><text x="312" y="212" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">aka PιɳC (formerly Pinc-Pt)</text><text x="930" y="212" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a"></text></g><g class="r" style="animation-delay:0.74s"><text x="280" y="242" text-anchor="middle" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">1</text><text x="312" y="242" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">Bob Velseb fictkin special</text><text x="930" y="242" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">9.99</text></g><g class="r" style="animation-delay:0.96s"><text x="280" y="272" text-anchor="middle" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">1</text><text x="312" y="272" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">Mystery burger (don't ask)</text><text x="930" y="272" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">6.66</text></g><g class="r" style="animation-delay:1.18s"><text x="280" y="302" text-anchor="middle" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">1</text><text x="312" y="302" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">Side of stolen candy</text><text x="930" y="302" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">FREE</text></g><g class="r" style="animation-delay:1.40s"><text x="280" y="332" text-anchor="middle" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">1</text><text x="312" y="332" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">Late shift, UTC+03:00</text><text x="930" y="332" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">0.00</text></g><g class="r" style="animation-delay:1.62s"><text x="280" y="362" text-anchor="middle" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">1</text><text x="312" y="362" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">This profile (coding is hard)</text><text x="930" y="362" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="17" fill="#1f3a8a">4.04</text></g>
+<g class="tot"><text x="312" y="385" font-family="Consolas,Menlo,monospace" font-size="12" letter-spacing="2" fill="#2f6b4f">TOTAL</text>
+<text x="930" y="386" text-anchor="end" font-family="'Segoe Print','Comic Sans MS','Bradley Hand','Marker Felt',cursive" font-size="20" font-weight="700" fill="#1f3a8a">all your candy</text></g>
+<path d="M750 392H932" stroke="#1f3a8a" stroke-width="2" class="ul"/>
+<path d="M250 404H950" stroke="#2f6b4f" stroke-dasharray="3 5" stroke-width="1.5"/>
+<text x="274" y="436" font-family="Georgia,'Times New Roman',serif" font-style="italic" font-size="15" fill="#2f6b4f">thank you, come again… soon</text>
+<text x="710" y="440" font-family="Consolas,Menlo,monospace" font-size="9" letter-spacing="2" fill="#2f6b4f">SERVER</text>
+<g clip-path="url(#sig)"><text x="770" y="428" font-family="'Brush Script MT','Segoe Script','Lucida Handwriting',cursive" font-size="30" fill="#1f3a8a">PιɳC</text></g>
+<g class="st">
+<rect x="615" y="262" width="150" height="56" rx="6" fill="none" stroke="#b3262d" stroke-width="4"/>
+<text x="690" y="301" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="30" letter-spacing="4" fill="#b3262d">PAID</text>
+</g>
+</g>
+<g transform="translate(1060 330)">
+<g class="stm" fill="none" stroke="#cfe3e6" stroke-width="3" stroke-linecap="round"><path d="M-14 -40q-8-10 0-20q8-10 0-20"/><path d="M0 -44q-8-10 0-20q8-10 0-20" style="animation-delay:1s"/><path d="M14 -40q-8-10 0-20q8-10 0-20" style="animation-delay:2s"/></g>
+<path d="M-40 0h80a8 8 0 0 1 0 0q0 30 -40 30q-40 0 -40 -30z" fill="#e8e2d4"/>
+<ellipse cx="0" cy="0" rx="40" ry="8" fill="#5a3a22"/>
+<path d="M40 6q18 0 14 14q-4 10 -18 6" fill="none" stroke="#e8e2d4" stroke-width="5"/>
+<ellipse cx="0" cy="34" rx="58" ry="7" fill="#e8e2d4" opacity=".9"/>
+</g>
+</svg>
