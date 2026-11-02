@@ -29,6 +29,17 @@ jobs:
             echo "::error::Can't find $FILE. The check must be in a folder called 'asset' (no s)."
             exit 1
           fi
+          # Clean up common copy-paste damage: ``` lines and anything before <svg / after </svg>
+          sed -i '/^[[:space:]]*```/d' "$FILE"
+          python3 - "$FILE" <<'PY'
+          import sys, re
+          p = sys.argv[1]
+          s = open(p, encoding="utf-8-sig").read()
+          a, b = s.find("<svg"), s.rfind("</svg>")
+          if a != -1 and b != -1:
+              s = s[a:b + 6] + "\n"
+          open(p, "w", encoding="utf-8").write(s)
+          PY
           TODAY=$(TZ=Etc/GMT-3 date +'%b %-d')
           echo "Today's date (UTC+3): $TODAY"
           # Older checks without a date marker: upgrade the date box so it can be updated
@@ -40,6 +51,12 @@ jobs:
             exit 1
           fi
           grep -o '<text id="date"[^>]*>[^<]*</text>' "$FILE"
+          # Make sure the result is a valid picture before saving
+          if ! python3 -c "import sys, xml.dom.minidom; xml.dom.minidom.parse(sys.argv[1])" "$FILE"; then
+            echo "::error::$FILE is damaged and not a valid SVG. Delete it and upload lab-report.svg again (don't paste)."
+            exit 1
+          fi
+          echo "lab-report.svg is a valid picture."
 
       - name: Save only if the date changed
         run: |
@@ -49,7 +66,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Update check date"
+          git commit -am "Update check date (and tidy lab-report.svg)"
           git pull --rebase
           git push
           echo "Saved the new date."
