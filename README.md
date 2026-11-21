@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/fictkin-SMG3-7b3fc4?style=for-the-badge&labelColor=0f0820" alt="fictkin">
   <img src="https://img.shields.io/badge/pet-Eggdog-f2c14e?style=for-the-badge&labelColor=0f0820" alt="pet: Eggdog">
   <img src="https://img.shields.io/badge/coffee-%26%20bombs-e0283c?style=for-the-badge&labelColor=0f0820" alt="coffee and bombs">
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=Pinc-Pt.Pinc-Pt&left_text=fresh%20meat&left_color=%2314112a&right_color=%23ff9a3c" alt="visitors">
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=Pinc-Pt.Pinc-Pt&left_text=NEW%20CLIENTS%20!!&left_color=%2314112a&right_color=%23ff9a3c" alt="visitors">
 </p>
 
 <img src="asset/sec-about.svg" alt="The Barista" width="100%">
